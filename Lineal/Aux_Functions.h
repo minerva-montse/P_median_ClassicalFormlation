@@ -25,30 +25,6 @@ char *Get_z_Name(int i, int k)
 	return aux;
 }
 
-//// This is the 'matrix' class.
-////template <typename Number>
-struct matrix : vector <vector <int> >
-{
-	matrix(unsigned m, unsigned n)
-	{
-		resize(m, vector <int>(n, 0));
-	}
-	unsigned rows()    const { return this->size(); }
-	unsigned columns() const { return this->front().size(); }
-};
-//
-//// This is the output operator for the 'matrix' class. Yes, I know it is pretty simple...
-////template <typename Number>
-//ostream& operator << (ostream& outs, const matrix & m)
-//{
-//	for (unsigned row = 0; row < m.rows(); row++)
-//	{
-//		for (unsigned col = 0; col < m.columns(); col++)
-//			outs << m[row][col] << " ";
-//		outs << "\n";
-//	}
-//	return outs;
-//}
 
 bool Read_Parameters(int argc, char *argv[])
 {
@@ -58,8 +34,7 @@ bool Read_Parameters(int argc, char *argv[])
 
 	char *file_name;
 	file_name = argv[1];
-	cout << "value: " << *file_name << endl;
-	cout << "address: " << file_name << endl;
+
 	if (strlen(file_name) >= 5)
 	{
 		printf("The file is:%s\n", file_name);
@@ -98,65 +73,6 @@ bool Read_Parameters(int argc, char *argv[])
 			++arg;
 			continue;
 		}
-
-		/*if (strcmp(arg[argv], "-time") == 0)
-		{
-		++arg;
-		if (arg == argc) return false;
-		time_limit = atof(argv[arg]);
-		++arg;
-		continue;
-		}
-
-		if (strcmp(arg[argv], "-r") == 0)
-		{
-		++arg;
-		if (arg == argc) return false;
-		int roundedvalue = atoi(argv[arg]);
-		if (roundedvalue == 1) roundedc = true;
-		++arg;
-		continue;
-		}
-
-		if (strcmp(arg[argv], "-b") == 0)
-		{
-		++arg;
-		if (arg == argc) return false;
-		incumbent_value = atof(argv[arg]);
-		++arg;
-		continue;
-		}
-
-		if (strcmp(arg[argv], "-h") == 0)
-		{
-		RW = true;
-		++arg;
-		if (arg == argc) return false;
-		RWiter = atoi(argv[arg]);
-		++arg;
-		continue;
-		}
-
-		if (strcmp(arg[argv], "-s") == 0)
-		{
-		save_solution_info = true;
-		++arg;
-		if (arg == argc) return false;
-		solution_file_name = argv[arg];
-		++arg;
-		continue;
-		}
-
-		if (strcmp(arg[argv], "-d") == 0)
-		{
-		++arg;
-		if (arg == argc) return false;
-		int d = atoi(argv[arg]);
-		if (d == 1) allD = true;
-		else if (d != 0) return false;
-		++arg;
-		continue;
-		}*/
 
 		return false;
 	}
