@@ -3,7 +3,6 @@
 #include <iostream>
 #include <ilcplex/ilocplex.h>
 #include "Aux_Functions.h"
-#include "subrutines.h"
 
 using namespace std;
 
@@ -105,12 +104,14 @@ ILOBRANCHCALLBACK1(MyBranch, IloBoolVarArray, vars) {
 
 int main(int argc, char ** argv)
 {
+
 	//Start time BB.
 	clock_t clock_initial = clock();
 	double total_time = 0;
-
 	//solution
 	double Optimal_value;
+
+	//Read input parameters.
 	if (Read_Parameters(argc, argv) == false)
 	{
 		printf("ERROR: wrong command line.\n");
@@ -119,10 +120,10 @@ int main(int argc, char ** argv)
 		return 0;
 	}
 
+	//Read data from pmed file
 	char file_name[50] = "";
 	strcat_s(file_name, "data/");
 	strcat_s(file_name, argv[1]);
-	printf("The file is:%s\n", file_name);
 
 	//Create an input file stream
 	ifstream in(file_name, ios::in);
@@ -156,8 +157,7 @@ int main(int argc, char ** argv)
 		}
 	}
 
-
-	//Close the file stream
+	//Close the file stream. Finish reading.
 	in.close();
 
 	IloEnv env;
@@ -165,44 +165,43 @@ int main(int argc, char ** argv)
 	try {
 		IloModel model(env);
 		
-		//Cancel output from CPLEX
-		//env.setOut(env.getNullStream());
+		//env.setOut(env.getNullStream()); //Cancel output from CPLEX
 
 		//Allocation variables
-		//NumVarMatrix y(env, m);
-		NumBoolMatrix y(env, m);
+		//NumVarMatrix y(env, m); //Continuous variables
+		NumBoolMatrix y(env, m); //Binary variables
 		for (int i = 0; i < m; i++) {
-			//y[i] = IloNumVarArray(env, m, 0, IloInfinity, ILOFLOAT);
-			y[i] = IloBoolVarArray(env, m);
+			//y[i] = IloNumVarArray(env, m, 0, IloInfinity, ILOFLOAT); //Continuous variables
+			y[i] = IloBoolVarArray(env, m); //Binary variables
 			for (int j = 0; j < m; j++) {
 				y[i][j].setName(Get_y_Name(i, j));
-				//y[i][j].setName();
 			}
 		}
+
 		//Location variables
-		IloBoolVarArray X(env, m);
-		//IloNumVarArray X(env, m);
+		//IloNumVarArray X(env, m); //Continuous variables
+		IloBoolVarArray X(env, m); //Binary variables
 		for (int i = 0; i < m; i++) {
-			X[i] = IloBoolVar(env, Get_x_Name(i));
-			//X[i] = IloNumVar(env, 0, IloInfinity, Get_x_Name(i));
+			//X[i] = IloNumVar(env, 0, IloInfinity, Get_x_Name(i)); //Continuous variables
+			X[i] = IloBoolVar(env, Get_x_Name(i)); //Binary variables
 		}
 
-		//Objective
+		//Objective Function
 		IloExpr obj(env);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < m; j++) {
 				obj += dist[i][j] * y[i][j];
 			}
 		}
-		model.add(IloMinimize(env, obj));
+		model.add(IloMinimize(env, obj)); //Add objective to the model
 
 		//Constraint 1: Each demand to be assigned to one facility
 		for (int i = 0; i < m; i++) {
 			IloExpr cons1(env);
 			for (int j = 0; j < m; j++) {
 				cons1 += y[i][j];
-			}
-			model.add(cons1 == 1);
+			} 
+			model.add(cons1 == 1); //Add constraint 1 to the model
 		}
 
 		//Contraint 2: Locate P facilites
@@ -210,7 +209,7 @@ int main(int argc, char ** argv)
 		for (int i = 0; i < m; i++) {
 			cons2 += X[i];
 			if (i == m - 1) {
-				model.add(cons2 == p);
+				model.add(cons2 == p); //Add constraint 2 to the model
 			}
 		}
 
@@ -219,7 +218,7 @@ int main(int argc, char ** argv)
 			IloExpr cons3(env);
 			for (int j = 0; j < m; j++) {
 				cons3 = y[i][j] - X[j];
-				model.add(cons3 <= 0);
+				model.add(cons3 <= 0); //Add constraint 3 to the model
 			}
 		}
 
@@ -229,31 +228,48 @@ int main(int argc, char ** argv)
 		cplex.setParam(IloCplex::ClockType, 1); // CPU time
 		cplex.setParam(IloCplex::Threads, 1); // Number of threads
 		cplex.setParam(IloCplex::TiLim, 1000); // Time limit
-		//cplex.extract(model);
-		cplex.exportModel("pmedian_lineal.lp");
+		//cplex.exportModel("pmedian_lineal.lp"); //Export model in LP format
 
+		//Use CallBacks
 		//cplex.use(MyBranch(env,X));
 		//cplex.use(MyCallback(env));
+
+
 		if (!cplex.solve()) {
 			env.error() << "Failed to optimize LP." << endl;
 			throw(-1);
 		}
 
-		Optimal_value = cplex.getObjValue();
-		//Output Solution
-		//IloNumArray vals(env);
-		//IloNumArray valsy(env);
-		//env.out() << "Solution status = " << cplex.getStatus() << endl;
-		env.out() << "Solution value = " << Optimal_value << endl;
-		//cplex.getValues(vals, X);
-		//env.out() << "Values x= " << vals << endl;
-		//for (int i = 0; i < m; i++) {
-		//	cplex.getValues(valsy, y[i]);
-		//	printf("Values y(%d)= ", i);
-		//	env.out() << valsy << endl;
-		//}
-		//cplex.exportModel("pmedian_CF.lp");
+		
 
+		//Output Solution
+		Optimal_value = cplex.getObjValue();
+		IloNumArray vals(env);
+		IloNumArray valsy(env);
+		env.out() << "Solution status = " << cplex.getStatus() << endl;
+		env.out() << "Solution value = " << Optimal_value << endl;
+		cplex.getValues(vals, X);
+		//Output selected medians
+		cout << "Medians x= ";
+		for (size_t i = 0; i <m; i++)
+		{
+			if (vals[i]>0)
+			{
+				cout << i << ", ";
+			}
+		}
+		cout << endl;
+		//Print allocation
+		for (int i = 0; i < m; i++) {
+			cplex.getValues(valsy, y[i]);
+			for (size_t j = 0; j < m; j++)
+			{
+				if (valsy[j]>0)
+				{
+					printf("Customer y(%d) to median X(%d)\n", i, j);
+				}
+			}
+		}
 	}
 	catch (IloException& ex) {
 		cerr << "Concert exception caught: " << ex << endl;
@@ -270,7 +286,7 @@ int main(int argc, char ** argv)
 	//Output solution
 
 	ofstream outfile;
-	outfile.open("Results/Results_times_1Thread_1000seconds.csv", std::fstream::app);
+	outfile.open("Results/Results_times.csv", std::fstream::app);
 	puts("Writing to the file");
 
 	outfile << "File," << char(9);
