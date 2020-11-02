@@ -5,3 +5,4 @@
  - Solve the p-median classical formulation
  - Uses CPLEX 12.8
  - Can solve the linear relexation by changing the nature of variables, only comment/uncomment lines where needed.
+ - Uses instances pmed01 - pmed40 from the OR-Library
