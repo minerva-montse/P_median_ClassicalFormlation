@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lineal", "Lineal\Lineal.vcxproj", "{20EE80F0-DF0C-4567-9E0F-3BF8DBDA6172}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClassicalFor", "ClassicalFor\ClassicalFor.vcxproj", "{20EE80F0-DF0C-4567-9E0F-3BF8DBDA6172}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
